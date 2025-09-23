@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>魔法議會展示與說明書</title>
+<style>
+body {
+  background: radial-gradient(circle at top, #1a1a2e, #0f0f1a);
+  color: #f5f5f5;
+  font-family: "Noto Sans TC", sans-serif;
+  text-align: center;
+  padding: 20px;
+  margin:0;
+}
+h1 { font-size: 2.5em; color: gold; text-shadow: 0 0 10px #ffd700,0 0 20px #ffae42; margin-bottom:10px; }
+
+.navbar { margin-bottom: 20px; }
+.navbar button {
+  background: #222244;
+  color: #ffd700;
+  border: 1px solid #ffd700;
+  padding: 8px 15px;
+  margin: 0 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight:bold;
+}
+.navbar button.active { background: #ffd700; color:#222244; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+.wizard-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.wizard-card {
+  background: rgba(30,30,60,0.9);
+  border:2px solid gold;
+  border-radius:15px;
+  padding:15px;
+  box-shadow:0 0 15px rgba(255,215,0,0.4);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+}
+.wizard-card:hover { transform: scale(1.05); box-shadow:0 0 25px rgba(255,215,0,0.7); }
+
+.name{ font-size:1.4em; color:#ffe066; font-weight:bold; }
+.role{ font-size:1.1em; color:#a0c4ff; }
+.seat{ font-size:1em; margin-top:3px; }
+.power{ margin:10px 0; font-weight:bold; }
+.rank{ font-size:1.2em; color:#ffb347; font-weight:bold; }
+
+.progress-container {
+  width: 100%;
+  height: 12px;
+  background: #444466;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+.progress-fill {
+  height: 100%;
+  background: gold;
+  border-radius: 6px;
+  transition: width 0.5s ease-in-out;
+}
+
+.badge-container { margin-top:8px; }
+.badge {
+  font-size:1.8em;
+  display:inline-block;
+  margin:3px;
+  cursor:pointer;
+  position: relative;
+}
+.badge:hover .badge-name {
+  opacity:1;
+  visibility: visible;
+}
+.badge-name {
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #ffd700;
+  padding:2px 6px;
+  border-radius:4px;
+  white-space: nowrap;
+  font-size:0.85em;
+  opacity:0;
+  visibility:hidden;
+  transition: opacity 0.3s;
+  pointer-events:none;
+}
+
+/* 魔法特效 */
+.effect-1 { box-shadow:0 0 8px #a0c4ff; border-color:#a0c4ff; }
+.effect-2 { box-shadow:0 0 8px #00ffff; border-color:#00ffff; }
+.effect-3 { box-shadow:0 0 10px #ffb6c1; border-color:#ffb6c1; }
+.effect-4 { box-shadow:0 0 10px #ffd700; border-color:#ffd700; }
+.effect-5 { box-shadow:0 0 10px #ff8c42; border-color:#ff8c42; }
+.effect-6 { box-shadow:0 0 12px #800080; border-color:#800080; }
+.effect-7 { box-shadow:0 0 12px #00ff00; border-color:#00ff00; }
+.effect-8 { box-shadow:0 0 14px #ff69b4; border-color:#ff69b4; }
+.effect-9 { box-shadow:0 0 14px #1e90ff; border-color:#1e90ff; }
+.effect-10 { box-shadow:0 0 14px #ffd700; border-color:#ffd700; }
+.effect-11 { box-shadow:0 0 16px #c0c0c0; border-color:#c0c0c0; }
+.effect-12 { box-shadow:0 0 16px #ff69b4; border-color:#ff69b4; }
+.effect-13 { box-shadow:0 0 16px #fffacd; border-color:#fffacd; }
+.effect-14 { box-shadow:0 0 18px #00ffff; border-color:#00ffff; }
+.effect-15 { box-shadow:0 0 18px #800080; border-color:#800080; }
+.effect-16 { box-shadow:0 0 18px #a0c4ff; border-color:#a0c4ff; }
+.effect-17 { box-shadow:0 0 18px #ff8c42; border-color:#ff8c42; }
+.effect-18 { box-shadow:0 0 20px #ffff00; border-color:#ffff00; }
+.effect-19 { box-shadow:0 0 20px #20b2aa; border-color:#20b2aa; }
+.effect-20 { box-shadow:0 0 22px #ffd700; border-color:#ffd700; }
+
+#manual, #badgeManual { text-align:left; max-width:900px; margin:0 auto; padding:10px; line-height:1.6; }
+#manual h2, #badgeManual h2{ color:#ffd700; text-align:center; margin-top:15px; }
+#manual ul, #badgeManual ul{ margin-left:20px; }
+#manual table { border-collapse: collapse; width: 100%; margin-top:10px; }
+#manual th, #manual td { border: 1px solid #ffd700; padding: 6px; }
+</style>
+</head>
+<body>
+
+<h1>✨ 魔法議會 ✨</h1>
+
+<div class="navbar">
+  <button id="btnShow" class="active">魔法議會展示</button>
+  <button id="btnManual">升級說明書</button>
+  <button id="btnBadgeManual">徽章說明</button>
+</div>
+
+<div id="pageShow" class="page active">
+  <div class="wizard-container" id="wizardContainer"></div>
+</div>
+
+<div id="pageManual" class="page">
+  <div id="manual">
+    <h2>📖 魔法議會升級說明書</h2>
+    <p>每位魔法師都有自己的魔法指數與位階，完成任務或活動可增加魔法指數，自動升級位階。</p>
+
+    <h2>✨ 魔法位階與魔法指數</h2>
+    <table>
+      <thead>
+        <tr><th>位階</th><th>名稱</th><th>魔法指數範圍</th><th>特效說明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>新手魔法師</td><td>0~49</td><td>淡藍光暈，固定光澤</td></tr>
+        <tr><td>2</td><td>初階魔法師</td><td>50~99</td><td>青色光暈，固定光澤</td></tr>
+        <tr><td>3</td><td>見習魔法師</td><td>100~149</td><td>粉紅光暈，微閃</td></tr>
+        <tr><td>4</td><td>魔法學徒</td><td>150~199</td><td>金色光暈，微閃</td></tr>
+        <tr><td>5</td><td>熟練魔法師</td><td>200~249</td><td>橘色光暈，微閃</td></tr>
+        <tr><td>6</td><td>高等魔法師</td><td>250~299</td><td>紫色光暈，慢閃</td></tr>
+        <tr><td>7</td><td>元素導師</td><td>300~349</td><td>綠色光暈，慢閃</td></tr>
+        <tr><td>8</td><td>星辰咒術師</td><td>350~399</td><td>粉紅光暈，閃爍</td></tr>
+        <tr><td>9</td><td>大魔導師</td><td>400~449</td><td>藍色光暈，閃爍</td></tr>
+        <tr><td>10</td><td>永恆賢者</td><td>450~499</td><td>金色光暈，閃爍</td></tr>
+        <tr><td>11</td><td>魔法議會精英</td><td>500~599</td><td>銀色光暈，閃爍</td></tr>
+        <tr><td>12</td><td>星域導師</td><td>600~699</td><td>粉紅光暈，閃爍</td></tr>
+        <tr><td>13</td><td>星界大師</td><td>700~799</td><td>淡黃光暈，閃爍</td></tr>
+        <tr><td>14</td><td>天界咒術師</td><td>800~899</td><td>青色光暈，漸變閃爍</td></tr>
+        <tr><td>15</td><td>星辰守護者</td><td>900~999</td><td>紫色光暈，漸變閃爍</td></tr>
+        <tr><td>16</td><td>魔法議會元老</td><td>1000~1099</td><td>淡藍光暈，漸變閃爍</td></tr>
+        <tr><td>17</td><td>智慧導師</td><td>1100~1199</td><td>橘色光暈，漸變閃爍</td></tr>
+        <tr><td>18</td><td>星辰賢者</td><td>1200~1299</td><td>黃色光暈，漸變閃爍</td></tr>
+        <tr><td>19</td><td>永恆導師</td><td>1300~1499</td><td>青綠光暈，漸變閃爍</td></tr>
+        <tr><td>20</td><td>魔法議會至尊</td><td>1500 以上</td><td>金色光暈，最強漸變閃爍</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="pageBadgeManual" class="page">
+  <div id="badgeManual">
+    <h2>🎖 魔法議會徽章說明</h2>
+    <p>每個徽章代表魔法師完成的任務、成就或特殊事件，滑鼠懸停即可顯示名稱（可包含時間或學期）。</p>
+    <ul id="badgeList"></ul>
+  </div>
+</div>
+
+<script>
+// 分頁切換
+const btnShow=document.getElementById("btnShow");
+const btnManual=document.getElementById("btnManual");
+const btnBadgeManual=document.getElementById("btnBadgeManual");
+const pageShow=document.getElementById("pageShow");
+const pageManual=document.getElementById("pageManual");
+const pageBadgeManual=document.getElementById("pageBadgeManual");
+
+btnShow.addEventListener("click",()=>{ pageShow.classList.add("active"); pageManual.classList.remove("active"); pageBadgeManual.classList.remove("active"); btnShow.classList.add("active"); btnManual.classList.remove("active"); btnBadgeManual.classList.remove("active"); });
+btnManual.addEventListener("click",()=>{ pageManual.classList.add("active"); pageShow.classList.remove("active"); pageBadgeManual.classList.remove("active"); btnManual.classList.add("active"); btnShow.classList.remove("active"); btnBadgeManual.classList.remove("active"); });
+btnBadgeManual.addEventListener("click",()=>{ pageBadgeManual.classList.add("active"); pageShow.classList.remove("active"); pageManual.classList.remove("active"); btnBadgeManual.classList.add("active"); btnShow.classList.remove("active"); btnManual.classList.remove("active"); });
+
+// 魔法位階表
+const ranks=[
+  {name:"新手魔法師", min:0, max:49, effect:1},
+  {name:"初階魔法師", min:50, max:99, effect:2},
+  {name:"見習魔法師", min:100, max:149, effect:3},
+  {name:"魔法學徒", min:150, max:199, effect:4},
+  {name:"熟練魔法師", min:200, max:249, effect:5},
+  {name:"高等魔法師", min:250, max:299, effect:6},
+  {name:"元素導師", min:300, max:349, effect:7},
+  {name:"星辰咒術師", min:350, max:399, effect:8},
+  {name:"大魔導師", min:400, max:449, effect:9},
+  {name:"永恆賢者", min:450, max:499, effect:10},
+  {name:"魔法議會精英", min:500, max:599, effect:11},
+  {name:"星域導師", min:600, max:699, effect:12},
+  {name:"星界大師", min:700, max:799, effect:13},
+  {name:"天界咒術師", min:800, max:899, effect:14},
+  {name:"星辰守護者", min:900, max:999, effect:15},
+  {name:"魔法議會元老", min:1000, max:1099, effect:16},
+  {name:"智慧導師", min:1100, max:1199, effect:17},
+  {name:"星辰賢者", min:1200, max:1299, effect:18},
+  {name:"永恆導師", min:1300, max:1499, effect:19},
+  {name:"魔法議會至尊", min:1500, max:9999, effect:20}
+];
+function getRank(power){ return ranks.find(r=>power>=r.min && power<=r.max).name; }
+function getProgress(power){
+  const rank=ranks.find(r=>power>=r.min && power<=r.max);
+  return Math.floor(((power-rank.min)/(rank.max-rank.min))*100);
+}
+function getEffect(power){
+  const rank=ranks.find(r=>power>=r.min && power<=r.max);
+  return rank.effect;
+}
+
+// 徽章對應 emoji
+const badges = {
+  "(114-1) 議會至尊徽章": "👑",
+  "(114-2) 議會至尊徽章": "👑",
+  "(115-1) 議會至尊徽章": "👑",
+  "(115-2) 議會至尊徽章": "👑",
+  "(114-1) 黃金議長徽章": "🏅",
+  "(114-1) 銀質副議徽章": "🥈",
+  "(114-1) 時光徽章": "⏳",
+  "(114-1) 烈焰徽章": "🔥",
+  "(114-1) 裁決徽章": "⚖️",
+  "(114-1) 符文守護徽": "🎐",
+  "(114-1) 知識徽章": "📚",
+  "(114-1) 幻戲徽章": "🎲",
+  "(114-1) 工坊徽章": "⚙️",
+  "(114-1) 暗影徽章": "🌑",
+  "(114-1) 冰霜徽章": "❄️",
+  "(114-1) 樂律徽章": "🎶",
+  "(114-1) 風語徽章": "🌬",
+  "(114-1) 戰舞徽章": "🏋️",
+  "(114-1) 幻網徽章": "🕸",
+  "(114-1) 煉金徽章": "🥘",
+  "(114-1) 結界徽章": "🌍",
+  "(114-1) 卷軸徽章": "📜",
+  "(114-1) 工匠徽章": "🔧",
+  "(114-1) 星語徽章": "📡",
+  "(114-1) 夢境徽章": "🌙",
+  "(114-1) 水晶徽章": "💎",
+  "(114-1) 星盤徽章": "🪐",
+  "(114-1) 符文徽章": "📔",
+  "(114-1) 禁典徽章": "📖",
+  "(114-1) 魔材徽章": "📦",
+  "(114-1) 特殊任務徽章": "🏆"
+};
+
+// 魔法師資料
+const wizards=[
+  {seat:1,name:"生命守衛師",role:"保健長",power:0,badges:["(114-1) 守護徽章"]},
+  {seat:2,name:"魔能工匠",role:"物資長",power:0,badges:["(114-1) 工匠徽章"]},
+  {seat:3,name:"火焰廚徒",role:"廚師",power:0,badges:["(114-1) 火焰徽章"]},
+  {seat:4,name:"時序守望者",role:"點名長",power:0,badges:["(114-1) 時光徽章"]},
+  {seat:5,name:"烈焰鬥士",role:"副體育長",power:0,badges:["(114-1) 烈焰徽章"]},
+  {seat:6,name:"魔法議會議長",role:"班長",power:0,badges:["(114-1) 黃金議長徽章"]},
+  {seat:7,name:"符文維護師",role:"副衛生",power:0,badges:["(114-1) 符文守護徽"]},
+  {seat:8,name:"圖書守望者",role:"書籍長",power:0,badges:["(114-1) 知識徽章"]},
+  {seat:9,name:"幻戲召喚師",role:"遊戲長",power:0,badges:["(114-1) 幻戲徽章"]},
+  {seat:10,name:"魔法議會副議長",role:"副班長",power:0,badges:["(114-1) 銀質副議徽章"]},
+  {seat:11,name:"暗影督導官",role:"副風紀",power:0,badges:["(114-1) 暗影徽章"]},
+  {seat:12,name:"冰霜廚徒",role:"廚師",power:0,badges:["(114-1) 冰霜徽章"]},
+  {seat:13,name:"樂律咒師",role:"音樂長",power:0,badges:["(114-1) 樂律徽章"]},
+  {seat:14,name:"風語使者",role:"空氣長",power:0,badges:["(114-1) 風語徽章"]},
+  {seat:15,name:"戰舞鬥士",role:"體育長",power:0,badges:["(114-1) 戰舞徽章"]},
+  {seat:16,name:"幻網編織師",role:"資訊長",power:0,badges:["(114-1) 幻網徽章"]},
+  {seat:17,name:"煉金食堂長",role:"廚師長",power:0,badges:["(114-1) 煉金徽章"]},
+  {seat:18,name:"結界守護者",role:"衛生長",power:0,badges:["(114-1) 結界徽章"]},
+  {seat:19,name:"卷軸書吏",role:"副學藝",power:0,badges:["(114-1) 卷軸徽章"]},
+  {seat:20,name:"魔導工坊總管",role:"事務長",power:0,badges:["(114-1) 工坊徽章"]},
+  {seat:21,name:"銀月裁決官",role:"風紀",power:0,badges:["(114-1) 裁決徽章"]},
+  {seat:22,name:"夢境幻師",role:"美工長",power:2000,badges:["(114-1) 夢境徽章"]},
+  {seat:23,name:"星語傳信者",role:"傳達長",power:1500,badges:["(114-1) 星語徽章"]},
+  {seat:24,name:"水晶記錄員",role:"學藝",power:1000,badges:["(114-1) 水晶徽章"]},
+  {seat:25,name:"星盤任務官",role:"作業長",power:900,badges:["(114-1) 星盤徽章"]},
+  {seat:26,name:"禁典守護者",role:"副書籍長",power:700,badges:["(114-1) 禁典徽章"]},
+  {seat:27,name:"符文任務官",role:"作業長",power:550,badges:["(114-1) 符文徽章"]},
+  {seat:28,name:"魔材管庫師",role:"補給長",power:300,badges:["(114-1) 魔材徽章"]},
+  {seat:29,name:"星辰大議長",role:"師",power:100,badges:["(114-1) 議會至尊徽章","(114-2) 議會至尊徽章","(115-1) 議會至尊徽章","(115-2) 議會至尊徽章"]}
+];
+
+// 建立卡片
+const wizardContainer=document.getElementById("wizardContainer");
+wizards.forEach(w=>{
+  const card=document.createElement("div");
+  card.className=`wizard-card effect-${getEffect(w.power)}`;
+  card.innerHTML=`
+    <div class="name">${w.name}</div>
+    <div class="role">${w.role}</div>
+    <div class="seat">座號: ${w.seat}</div>
+    <div class="power">魔法指數: ${w.power}</div>
+    <div class="rank">位階: ${getRank(w.power)}</div>
+    <div class="progress-container">
+      <div class="progress-fill" style="width:${getProgress(w.power)}%"></div>
+    </div>
+    <div class="badge-container">
+      ${w.badges.map(b=>`<span class="badge" title="${b}">${badges[b]||"🏅"}<span class="badge-name">${b}</span></span>`).join('')}
+    </div>
+  `;
+  wizardContainer.appendChild(card);
+});
+
+// 徽章清單頁面
+const badgeList=document.getElementById("badgeList");
+for(const [name,emoji] of Object.entries(badges)){
+  const li=document.createElement("li");
+  li.textContent=`${emoji} ${name}`;
+  badgeList.appendChild(li);
+}
+</script>
+</body>
+</html>
