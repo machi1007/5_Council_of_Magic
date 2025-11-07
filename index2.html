@@ -183,7 +183,7 @@ const equipSlots = [
 
 // 初始化 29 名學生
 const equipData = Array.from({length:29}, (_,i)=>{
-  const student={name:`${i+1}號學生`, storage:[]};
+  const student={name:`【${i+1}】魔法師`, storage:[]};
   equipSlots.forEach(slot=>student[slot]=null);
   return student;
 });
@@ -356,4 +356,5 @@ showPage("equipPage");
 
 </body>
 </html>
+
 
