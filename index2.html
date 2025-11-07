@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>魔法裝備</title>
+<style>
+  body {
+    background: radial-gradient(circle at top, #222, #111);
+    color: #fff;
+    font-family: "微軟正黑體", sans-serif;
+    text-align: center;
+    margin:0; padding:0;
+  }
+  h1 { margin: 20px 0; }
+
+.tab-btn {
+background: #444;
+color: #fff;
+border: none;
+padding: 8px 16px;
+margin: 0 4px;
+border-radius: 8px;
+cursor: pointer;
+}
+.tab-btn:hover { background: #666; }
+
+.page { display: none; }
+
+.equip-container {
+position: relative;
+width: 320px;
+height: 420px;
+margin: 20px auto;
+border: 3px solid #555;
+border-radius: 12px;
+background: rgba(255,255,255,0.05);
+box-shadow: 0 0 10px #333 inset;
+}
+.equip-slot {
+position: absolute;
+width: 64px;
+height: 64px;
+border: 2px solid #777;
+border-radius: 8px;
+background: rgba(255,255,255,0.1);
+display: flex;
+justify-content: center;
+align-items: center;
+cursor: pointer;
+transition: 0.2s;
+font-size: 32px;
+}
+.equip-slot:hover { border-color: gold; transform: scale(1.05); }
+
+.head { top: 20px; left: 128px; }
+.neck { top: 100px; left: 128px; }
+.body { top: 180px; left: 128px; }
+.waist { top: 260px; left: 128px; }
+.hands { top: 180px; left: 48px; }
+.weapon { top: 180px; left: 208px; }
+.legs { top: 260px; left: 48px; }
+.boots { top: 260px; left: 208px; }
+.accessory { top: 340px; left: 128px; }
+
+.storage-box {
+width: 320px;
+margin: 20px auto;
+border: 2px solid #555;
+border-radius: 10px;
+background: rgba(255,255,255,0.05);
+padding: 10px;
+}
+.storage-item {
+display: inline-block;
+font-size: 28px;
+margin: 4px;
+cursor: pointer;
+}
+
+.student-select {
+margin-top: 10px;
+font-size: 16px;
+padding: 4px 8px;
+border-radius: 6px;
+border: none;
+background: #333;
+color: white;
+}
+
+.tooltip {
+position: fixed;
+bottom: 30px;
+left: 50%;
+transform: translateX(-50%);
+background: rgba(50,50,50,0.9);
+color: #fff;
+padding: 10px 16px;
+border-radius: 8px;
+display: none;
+max-width: 80%;
+}
+
+.student {
+background: rgba(255,255,255,0.05);
+border: 2px solid #555;
+border-radius: 10px;
+margin: 10px auto;
+padding: 10px;
+width: 90%;
+max-width: 500px;
+box-shadow: 0 0 10px #333 inset;
+font-size: 14px;
+}
+.equip-line {
+display: flex;
+justify-content: space-between;
+padding: 4px 10px;
+border-bottom: 1px solid #444;
+}
+.equip-line:last-child { border-bottom: none; }
+.icon { font-size: 24px; }
+
+.back-btn {
+background: #444;
+color: #fff;
+border: none;
+padding: 8px 16px;
+border-radius: 8px;
+cursor: pointer;
+margin-bottom: 20px;
+}
+.back-btn:hover { background: #666; } </style>
+
+</head>
+<body>
+
+<h1>魔法師裝備</h1>
+<div>
+  <button class="tab-btn" data-page="equipPage">魔法裝備</button>
+  <button class="tab-btn" data-page="allPage">全員一覽</button>
+  <button class="tab-btn" data-page="catalogPage">裝備大全</button>
+  <button onclick="window.location.href='index.html'" 
+          style="background:#222244; color:#ffd700; border:1px solid #ffd700; 
+                 padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">
+    魔法議會
+  </button>
+  <button onclick="window.location.href='index3.html'" 
+          style="background:#222244; color:#ffd700; border:1px solid #ffd700; 
+                 padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">
+    魔法商店
+  </button>
+</div>
+
+<div class="page" id="equipPage">
+  <select id="studentSelect" class="student-select"></select>
+
+  <div class="equip-container" id="equipContainer"></div>
+
+  <div class="storage-box" id="storageBox">
+    <h3>倉庫</h3>
+    <div id="storageItems"></div>
+  </div>
+</div>
+
+<div class="page" id="allPage">
+  <div id="allContainer"></div>
+</div>
+
+<div class="page" id="catalogPage">
+  <input type="text" id="catalogSearch" placeholder="🔍 搜尋裝備名稱或說明" style="width:90%;max-width:400px;margin:10px 0;padding:6px;border-radius:6px;border:none;font-size:16px;">
+  <div id="catalogContainer"></div>
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+const equipSlots = [
+  "head","body","hands","weapon","legs","boots",
+  "neck","waist","accessory"
+];
+
+// 初始化 29 名學生
+const equipData = Array.from({length:29}, (_,i)=>{
+  const student={name:`${i+1}號學生`, storage:[]};
+  equipSlots.forEach(slot=>student[slot]=null);
+  return student;
+});
+
+// 範例裝備
+equipData[28].head={icon:"🐻",name:"棕熊帽",desc:"【頭部】"};
+equipData[28].body={icon:"🍕",name:"披薩",desc:"【盔甲】"};
+equipData[28].hands={icon:"🖊️",name:"玩具鋼筆",desc:"【手部】"};
+equipData[28].weapon={icon:"📚",name:"書本",desc:"【武器】"};
+equipData[28].legs={icon:"👖",name:"舞蹈褲",desc:"【腿部】"};
+equipData[28].boots={icon:"🥾",name:"探險靴",desc:"【靴子】"};
+equipData[28].neck={icon:"📿",name:"幸運項鍊",desc:"【頸部】"};
+equipData[28].waist={icon:"🎀",name:"魔法議會腰帶",desc:"【腰部】"};
+equipData[28].accessory={icon:"🎖️",name:"魔法徽章",desc:"【飾品】"};
+equipData[28].storage.push({icon:"🏆",name:"優等生獎盃",desc:"【其他】"});
+
+// 其他學生同理，可依需求填寫
+
+const studentSelect=document.getElementById("studentSelect");
+const equipContainer=document.getElementById("equipContainer");
+const storageItems=document.getElementById("storageItems");
+const tooltip=document.getElementById("tooltip");
+const allContainer=document.getElementById("allContainer");
+const catalogContainer=document.getElementById("catalogContainer");
+
+// 動態生成格子
+equipSlots.forEach(slot=>{
+  const div=document.createElement("div");
+  div.className=`equip-slot ${slot}`;
+  div.dataset.slot=slot;
+  equipContainer.appendChild(div);
+});
+
+// 生成學生選單
+equipData.forEach((s,i)=>{
+  const opt=document.createElement("option");
+  opt.value=i;
+  opt.textContent=s.name;
+  studentSelect.appendChild(opt);
+});
+
+function showTooltip(item){
+  tooltip.innerHTML=`<strong>${item.name}</strong><br>${item.desc}`;
+  tooltip.style.display="block";
+  setTimeout(()=>tooltip.style.display="none",2000);
+}
+
+function renderEquip(){
+  const i=parseInt(studentSelect.value);
+  const data=equipData[i];
+  document.querySelectorAll(".equip-slot").forEach(slot=>{
+    const part=slot.dataset.slot;
+    const item=data[part];
+    slot.textContent=item?item.icon:"❔";
+  });
+  storageItems.innerHTML="";
+  data.storage.forEach(item=>{
+    const span=document.createElement("span");
+    span.className="storage-item";
+    span.textContent=item.icon;
+    span.onclick=()=>showTooltip(item);
+    storageItems.appendChild(span);
+  });
+}
+
+equipContainer.addEventListener("click",(e)=>{
+  const slot=e.target.closest(".equip-slot");
+  if(!slot) return;
+  const part=slot.dataset.slot;
+  const i=parseInt(studentSelect.value);
+  const item=equipData[i][part];
+  if(item) showTooltip(item);
+});
+
+studentSelect.addEventListener("change",renderEquip);
+
+// 全員攻略
+function renderAll(){
+  allContainer.innerHTML="";
+  equipData.forEach(player=>{
+    const div=document.createElement("div");
+    div.className="student";
+    let html=`<h2>${player.name}</h2>`;
+    equipSlots.forEach(p=>{
+      const names={head:"頭部",body:"身體",hands:"手部",weapon:"武器",legs:"腿部",boots:"鞋子",neck:"頸部",waist:"腰部",accessory:"飾品"};
+      const item=player[p];
+      if(item) html+=`<div class="equip-line"><span>${names[p]}</span><span class="icon">${item.icon}</span><span>${item.name}</span><span>${item.desc}</span></div>`;
+    });
+    if(player.storage.length){
+      html+=`<div class="equip-line"><strong>其他裝備：</strong></div>`;
+      player.storage.forEach(st=>html+=`<div class="equip-line"><span class="icon">${st.icon}</span><span>${st.name}</span><span>${st.desc}</span></div>`);
+    }
+    div.innerHTML=html;
+    allContainer.appendChild(div);
+  });
+}
+
+// 裝備大全
+function renderCatalog(){
+  const query=catalogSearch.value.trim().toLowerCase();
+  catalogContainer.innerHTML="";
+  const allEquip={};
+  equipData.forEach(player=>{
+    equipSlots.forEach(part=>{
+      const item=player[part];
+      if(item) allEquip[item.name]=item;
+    });
+    player.storage.forEach(st=>allEquip[st.name]=st);
+  });
+  Object.values(allEquip).forEach(item=>{
+    if(query && !item.name.toLowerCase().includes(query) && !item.desc.toLowerCase().includes(query)) return;
+    const div=document.createElement("div");
+    div.className="student";
+    div.innerHTML=`<div class="equip-line"><span class="icon">${item.icon}</span><span>${item.name}</span><span>${item.desc}</span></div>`;
+    catalogContainer.appendChild(div);
+  });
+}
+
+// 頁面切換
+const pages=document.querySelectorAll(".page");
+function showPage(id){
+  pages.forEach(p=>p.style.display="none");
+  document.getElementById(id).style.display="block";
+  if(id==="allPage") renderAll();
+  if(id==="catalogPage") renderCatalog();
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.page));
+});
+
+// 搜尋
+const catalogSearch=document.getElementById("catalogSearch");
+catalogSearch.addEventListener("input", renderCatalog);
+
+// 預設
+renderEquip();
+showPage("equipPage");
+</script>
+
+</body>
+</html>
