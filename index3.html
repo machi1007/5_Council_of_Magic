@@ -90,54 +90,54 @@ margin-top: 5px;
 // 魔法裝備陣列（每個部位至少3個）
 const storeItems = [
   // 頭部
-  {emoji:"🧙‍♂️", name:"魔法帽", part:"【頭部】", cost:30, quantity:6},
-  {emoji:"👑", name:"王冠", part:"【頭部】", cost:60, quantity:2},
-  {emoji:"🎩", name:"高帽", part:"【頭部】", cost:40, quantity:3},
+  {emoji:"🧙‍♂️", name:"魔法帽", part:"【頭部】", cost:100, quantity:2},
+  {emoji:"👑", name:"王冠", part:"【頭部】", cost:150, quantity:1},
+  {emoji:"🎩", name:"高帽", part:"【頭部】", cost:70, quantity:3},
 
   // 盔甲
-  {emoji:"🛡️", name:"魔法護盾", part:"【盔甲】", cost:40, quantity:3},
-  {emoji:"🧥", name:"魔法外套", part:"【盔甲】", cost:35, quantity:4},
-  {emoji:"🧵", name:"魔法織布", part:"【盔甲】", cost:20, quantity:5},
+  {emoji:"🛡️", name:"魔法護盾", part:"【盔甲】", cost:180, quantity:1},
+  {emoji:"🧥", name:"魔法外套", part:"【盔甲】", cost:75, quantity:3},
+  {emoji:"🧵", name:"魔法織布", part:"【盔甲】", cost:120, quantity:2},
 
   // 手部
-  {emoji:"🧤", name:"魔法手套", part:"【手部】", cost:25, quantity:5},
-  {emoji:"🗡️", name:"手甲匕首", part:"【手部】", cost:30, quantity:4},
-  {emoji:"🔮", name:"魔法水晶手環", part:"【手部】", cost:35, quantity:2},
+  {emoji:"🧤", name:"魔法手套", part:"【手部】", cost:55, quantity:3},
+  {emoji:"🗡️", name:"匕首手套", part:"【手部】", cost:200, quantity:1},
+  {emoji:"🔮", name:"水晶手套", part:"【手部】", cost:200, quantity:1},
 
   // 武器
-  {emoji:"🪄", name:"魔法杖", part:"【武器】", cost:50, quantity:5},
-  {emoji:"⚔️", name:"魔劍", part:"【武器】", cost:55, quantity:3},
-  {emoji:"🏹", name:"魔法弓", part:"【武器】", cost:50, quantity:4},
+  {emoji:"🪄", name:"魔法杖", part:"【武器】", cost:250, quantity:1},
+  {emoji:"⚔️", name:"魔劍", part:"【武器】", cost:250, quantity:1},
+  {emoji:"🏹", name:"魔法弓", part:"【武器】", cost:250, quantity:1},
 
   // 腿部
-  {emoji:"👖", name:"魔法護腿", part:"【腿部】", cost:30, quantity:4},
-  {emoji:"🩳", name:"魔法短褲", part:"【腿部】", cost:20, quantity:5},
-  {emoji:"🧙‍♂️", name:"長袍下襬", part:"【腿部】", cost:35, quantity:3},
+  {emoji:"👖", name:"魔法護腿", part:"【腿部】", cost:150, quantity:1},
+  {emoji:"🩳", name:"魔法短褲", part:"【腿部】", cost:75, quantity:3},
+  {emoji:"🧙‍♂️", name:"長袍下襬", part:"【腿部】", cost:120, quantity:2},
 
   // 靴子
-  {emoji:"🥾", name:"魔法靴", part:"【靴子】", cost:25, quantity:8},
-  {emoji:"👢", name:"長靴", part:"【靴子】", cost:35, quantity:4},
-  {emoji:"🥿", name:"輕靴", part:"【靴子】", cost:20, quantity:5},
+  {emoji:"🥾", name:"魔法靴", part:"【靴子】", cost:95, quantity:2},
+  {emoji:"👢", name:"長靴", part:"【靴子】", cost:130, quantity:3},
+  {emoji:"🥿", name:"輕靴", part:"【靴子】", cost:60, quantity:1},
 
   // 頸部
-  {emoji:"🧣", name:"魔法披風", part:"【頸部】", cost:35, quantity:3},
-  {emoji:"📿", name:"魔法項鍊", part:"【頸部】", cost:40, quantity:2},
-  {emoji:"📿", name:"魔法護頸", part:"【頸部】", cost:30, quantity:4},
+  {emoji:"🧣", name:"魔法披風", part:"【頸部】", cost:150, quantity:3},
+  {emoji:"📿", name:"魔法項鍊", part:"【頸部】", cost:180, quantity:2},
+  {emoji:"📿", name:"魔法護頸", part:"【頸部】", cost:200, quantity:1},
 
   // 腰部
-  {emoji:"🔗", name:"魔法腰帶", part:"【腰部】", cost:25, quantity:5},
-  {emoji:"👑", name:"王者腰飾", part:"【腰部】", cost:50, quantity:2},
-  {emoji:"🔗", name:"魔法鏈帶", part:"【腰部】", cost:30, quantity:3},
+  {emoji:"🔗", name:"魔法腰帶", part:"【腰部】", cost:160, quantity:3},
+  {emoji:"👑", name:"王者腰飾", part:"【腰部】", cost:250, quantity:1},
+  {emoji:"🔗", name:"魔法鏈帶", part:"【腰部】", cost:200, quantity:2},
 
   // 飾品
-  {emoji:"💍", name:"魔法戒指", part:"【飾品】", cost:20, quantity:6},
-  {emoji:"📿", name:"魔法珠鏈", part:"【飾品】", cost:25, quantity:4},
-  {emoji:"🧿", name:"魔法護符", part:"【飾品】", cost:30, quantity:3},
+  {emoji:"💍", name:"魔法戒指", part:"【飾品】", cost:220, quantity:3},
+  {emoji:"📿", name:"魔法珠鏈", part:"【飾品】", cost:250, quantity:2},
+  {emoji:"🧿", name:"魔法護符", part:"【飾品】", cost:280, quantity:1},
 
   // 其他
-  {emoji:"🔮", name:"水晶球", part:"【其他】", cost:45, quantity:2},
-  {emoji:"🧪", name:"魔法藥水", part:"【其他】", cost:15, quantity:12},
-  {emoji:"📜", name:"魔法卷軸", part:"【其他】", cost:35, quantity:4}
+  {emoji:"🔮", name:"水晶球", part:"【其他】", cost:300, quantity:1},
+  {emoji:"🧪", name:"魔法藥水", part:"【其他】", cost:250, quantity:3},
+  {emoji:"📜", name:"魔法卷軸", part:"【其他】", cost:280, quantity:2}
 ];
 
 // 生成卡片
@@ -158,3 +158,4 @@ storeItems.forEach(item => {
 
 </body>
 </html>
+
