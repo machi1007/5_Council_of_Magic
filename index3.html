@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
@@ -16,58 +15,67 @@ body {
 h1 {
   color: #ffd700;
   text-shadow: 0 0 8px #aa8800;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
-
+h3 {
+  margin-top: 5px;
+  color: #ccc;
+}
 .store-container {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-gap: 20px;
-max-width: 1000px;
-margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
-
 .store-card {
-background: rgba(10,10,25,0.9);
-border: 2px solid #aa8800;
-border-radius: 15px;
-padding: 15px;
-box-shadow: 0 0 12px rgba(170,136,0,0.5);
-transition: transform 0.3s, box-shadow 0.3s;
+  background: rgba(10,10,25,0.9);
+  border: 2px solid #aa8800;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 0 12px rgba(170,136,0,0.5);
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 .store-card:hover {
-transform: scale(1.05);
-box-shadow: 0 0 20px rgba(255,215,0,0.7);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,215,0,0.7);
 }
-
 .store-card .emoji {
-font-size: 2.2em;
+  font-size: 2.2em;
 }
-
 .store-card .name {
-font-weight: bold;
-font-size: 1.2em;
-margin: 5px 0;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin: 5px 0;
 }
-
 .store-card .part {
-font-size: 0.95em;
-color: #ccc;
-margin: 5px 0;
+  font-size: 0.95em;
+  color: #ccc;
+  margin: 5px 0;
 }
-
 .store-card .cost, .store-card .quantity {
-font-weight: bold;
-color: #ffd700;
-margin-top: 5px;
-} </style>
-
+  font-weight: bold;
+  color: #ffd700;
+  margin-top: 5px;
+}
+.multiplier-box {
+  margin: 15px auto;
+  background: rgba(20,20,40,0.8);
+  border: 1px solid #ffd700;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255,215,0,0.4);
+  font-weight: bold;
+  color: #ffd700;
+}
+</style>
 </head>
 <body>
 
 <h1>🛒 魔法商店展示 🛒</h1>
-<div>
 
+<div>
   <button onclick="window.location.href='index.html'" 
           style="background:#222244; color:#ffd700; border:1px solid #ffd700; 
                  padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">
@@ -79,68 +87,58 @@ margin-top: 5px;
     魔法裝備
   </button>
 </div>
-<div>
-<h3>(商品不定時更新)</h3>
 
-
+<div class="multiplier-box">
+  當前倍率：<span id="multiplierDisplay"></span>
 </div>
+
+<h4>☆*: .｡. 限時特價七折 .｡.:*☆</h4>
+<h3>(商品更新日：114.11.10)</h3>
+
 <div class="store-container" id="storeContainer"></div>
 
 <script>
-// 魔法裝備陣列（每個部位至少3個）
+// ====== 可自行修改的倍率 ======
+const multiplier = 0.7; // ← 只改這裡即可
+
+// ====== 商品資料 ======
 const storeItems = [
-  // 頭部
   {emoji:"🧙‍♂️", name:"魔法帽", part:"【頭部】", cost:100, quantity:2},
   {emoji:"👑", name:"王冠", part:"【頭部】", cost:150, quantity:1},
   {emoji:"🎩", name:"高帽", part:"【頭部】", cost:70, quantity:3},
-
-  // 盔甲
   {emoji:"🛡️", name:"魔法護盾", part:"【盔甲】", cost:180, quantity:1},
   {emoji:"🧥", name:"魔法外套", part:"【盔甲】", cost:75, quantity:3},
   {emoji:"🧵", name:"魔法織布", part:"【盔甲】", cost:120, quantity:2},
-
-  // 手部
   {emoji:"🧤", name:"魔法手套", part:"【手部】", cost:55, quantity:3},
   {emoji:"🗡️", name:"匕首手套", part:"【手部】", cost:200, quantity:1},
   {emoji:"🔮", name:"水晶手套", part:"【手部】", cost:200, quantity:1},
-
-  // 武器
   {emoji:"🪄", name:"魔法杖", part:"【武器】", cost:250, quantity:1},
   {emoji:"⚔️", name:"魔劍", part:"【武器】", cost:250, quantity:1},
   {emoji:"🏹", name:"魔法弓", part:"【武器】", cost:250, quantity:1},
-
-  // 腿部
   {emoji:"👖", name:"魔法護腿", part:"【腿部】", cost:150, quantity:1},
   {emoji:"🩳", name:"魔法短褲", part:"【腿部】", cost:75, quantity:3},
   {emoji:"🧙‍♂️", name:"長袍下襬", part:"【腿部】", cost:120, quantity:2},
-
-  // 靴子
   {emoji:"🥾", name:"魔法靴", part:"【靴子】", cost:95, quantity:2},
   {emoji:"👢", name:"長靴", part:"【靴子】", cost:130, quantity:3},
   {emoji:"🥿", name:"輕靴", part:"【靴子】", cost:60, quantity:1},
-
-  // 頸部
   {emoji:"🧣", name:"魔法披風", part:"【頸部】", cost:150, quantity:3},
   {emoji:"📿", name:"魔法項鍊", part:"【頸部】", cost:180, quantity:2},
   {emoji:"📿", name:"魔法護頸", part:"【頸部】", cost:200, quantity:1},
-
-  // 腰部
   {emoji:"🔗", name:"魔法腰帶", part:"【腰部】", cost:160, quantity:3},
   {emoji:"👑", name:"王者腰飾", part:"【腰部】", cost:250, quantity:1},
   {emoji:"🔗", name:"魔法鏈帶", part:"【腰部】", cost:200, quantity:2},
-
-  // 飾品
   {emoji:"💍", name:"魔法戒指", part:"【飾品】", cost:220, quantity:3},
   {emoji:"📿", name:"魔法珠鏈", part:"【飾品】", cost:250, quantity:2},
   {emoji:"🧿", name:"魔法護符", part:"【飾品】", cost:280, quantity:1},
-
-  // 其他
   {emoji:"🔮", name:"水晶球", part:"【其他】", cost:300, quantity:1},
   {emoji:"🧪", name:"魔法藥水", part:"【其他】", cost:250, quantity:3},
   {emoji:"📜", name:"魔法卷軸", part:"【其他】", cost:280, quantity:2}
 ];
 
-// 生成卡片
+// ====== 顯示倍率 ======
+document.getElementById("multiplierDisplay").textContent = "x" + multiplier.toFixed(1);
+
+// ====== 生成商品卡 ======
 const storeContainer = document.getElementById("storeContainer");
 storeItems.forEach(item => {
   const card = document.createElement("div");
@@ -149,7 +147,7 @@ storeItems.forEach(item => {
     <div class="emoji">${item.emoji}</div>
     <div class="name">${item.name}</div>
     <div class="part">部位: ${item.part}</div>
-    <div class="cost">消耗魔法指數: ${item.cost}</div>
+    <div class="cost">消耗魔法指數: ${(item.cost * multiplier).toFixed(0)}</div>
     <div class="quantity">數量: ${item.quantity}</div>
   `;
   storeContainer.appendChild(card);
@@ -158,4 +156,3 @@ storeItems.forEach(item => {
 
 </body>
 </html>
-
