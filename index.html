@@ -95,27 +95,52 @@ h1 { font-size: 2.5em; color: gold; text-shadow: 0 0 10px #ffd700,0 0 20px #ffae
   pointer-events:none;
 }
 
-/* 魔法特效 */
-.effect-1 { box-shadow:0 0 8px #a0c4ff; border-color:#a0c4ff; }
-.effect-2 { box-shadow:0 0 8px #00ffff; border-color:#00ffff; }
-.effect-3 { box-shadow:0 0 10px #ffb6c1; border-color:#ffb6c1; }
-.effect-4 { box-shadow:0 0 10px #ffd700; border-color:#ffd700; }
-.effect-5 { box-shadow:0 0 10px #ff8c42; border-color:#ff8c42; }
-.effect-6 { box-shadow:0 0 12px #800080; border-color:#800080; }
-.effect-7 { box-shadow:0 0 12px #00ff00; border-color:#00ff00; }
-.effect-8 { box-shadow:0 0 14px #ff69b4; border-color:#ff69b4; }
-.effect-9 { box-shadow:0 0 14px #1e90ff; border-color:#1e90ff; }
-.effect-10 { box-shadow:0 0 14px #ffd700; border-color:#ffd700; }
-.effect-11 { box-shadow:0 0 16px #c0c0c0; border-color:#c0c0c0; }
-.effect-12 { box-shadow:0 0 16px #ff69b4; border-color:#ff69b4; }
-.effect-13 { box-shadow:0 0 16px #fffacd; border-color:#fffacd; }
-.effect-14 { box-shadow:0 0 18px #00ffff; border-color:#00ffff; }
-.effect-15 { box-shadow:0 0 18px #800080; border-color:#800080; }
-.effect-16 { box-shadow:0 0 18px #a0c4ff; border-color:#a0c4ff; }
-.effect-17 { box-shadow:0 0 18px #ff8c42; border-color:#ff8c42; }
-.effect-18 { box-shadow:0 0 20px #ffff00; border-color:#ffff00; }
-.effect-19 { box-shadow:0 0 20px #20b2aa; border-color:#20b2aa; }
-.effect-20 { box-shadow:0 0 22px #ffd700; border-color:#ffd700; }
+/* === 魔法特效動畫 === */
+
+/* 發光動畫 */
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 8px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor; }
+  100% { box-shadow: 0 0 8px currentColor; }
+}
+
+/* 漸變閃爍動畫 */
+@keyframes colorShift {
+  0% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(60deg); }
+  100% { filter: hue-rotate(0deg); }
+}
+
+/* === 各階層對應效果 === */
+
+/* 固定光澤 (位階 1~5) */
+.effect-1 { color:#a0c4ff; border-color:#a0c4ff; box-shadow:0 0 8px #a0c4ff; }
+.effect-2 { color:#00ffff; border-color:#00ffff; box-shadow:0 0 8px #00ffff; }
+.effect-3 { color:#ffb6c1; border-color:#ffb6c1; box-shadow:0 0 10px #ffb6c1; }
+.effect-4 { color:#ffd700; border-color:#ffd700; box-shadow:0 0 10px #ffd700; }
+.effect-5 { color:#ff8c42; border-color:#ff8c42; box-shadow:0 0 10px #ff8c42; }
+
+/* 微閃 (位階 6~10) */
+.effect-6 { color:#800080; border-color:#800080; animation: glowPulse 3s infinite ease-in-out; }
+.effect-7 { color:#00ff00; border-color:#00ff00; animation: glowPulse 3s infinite ease-in-out; }
+.effect-8 { color:#ff69b4; border-color:#ff69b4; animation: glowPulse 3s infinite ease-in-out; }
+.effect-9 { color:#1e90ff; border-color:#1e90ff; animation: glowPulse 3s infinite ease-in-out; }
+.effect-10 { color:#ffd700; border-color:#ffd700; animation: glowPulse 3s infinite ease-in-out; }
+
+/* 閃爍 (位階 11~15) */
+.effect-11 { color:#c0c0c0; border-color:#c0c0c0; animation: glowPulse 2s infinite ease-in-out; }
+.effect-12 { color:#ff69b4; border-color:#ff69b4; animation: glowPulse 2s infinite ease-in-out; }
+.effect-13 { color:#fffacd; border-color:#fffacd; animation: glowPulse 2s infinite ease-in-out; }
+.effect-14 { color:#00ffff; border-color:#00ffff; animation: glowPulse 2s infinite ease-in-out; }
+.effect-15 { color:#800080; border-color:#800080; animation: glowPulse 2s infinite ease-in-out; }
+
+/* 漸變閃爍 (位階 16~20) */
+.effect-16 { color:#a0c4ff; border-color:#a0c4ff; animation: colorShift 3s infinite linear, glowPulse 2.5s infinite ease-in-out; }
+.effect-17 { color:#ff8c42; border-color:#ff8c42; animation: colorShift 3s infinite linear, glowPulse 2.5s infinite ease-in-out; }
+.effect-18 { color:#ffff00; border-color:#ffff00; animation: colorShift 3s infinite linear, glowPulse 2.5s infinite ease-in-out; }
+.effect-19 { color:#20b2aa; border-color:#20b2aa; animation: colorShift 3s infinite linear, glowPulse 2.5s infinite ease-in-out; }
+.effect-20 { color:#ffd700; border-color:#ffd700; animation: colorShift 3s infinite linear, glowPulse 2.5s infinite ease-in-out; }
+
 
 #manual, #badgeManual { text-align:left; max-width:900px; margin:0 auto; padding:10px; line-height:1.6; }
 #manual h2, #badgeManual h2{ color:#ffd700; text-align:center; margin-top:15px; }
@@ -361,6 +386,7 @@ for(const [name,emoji] of Object.entries(badges)){
 </script>
 </body>
 </html>
+
 
 
 
