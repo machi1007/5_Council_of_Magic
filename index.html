@@ -114,6 +114,7 @@ h1 { font-size: 2.5em; color: gold; text-shadow: 0 0 10px #ffd700,0 0 20px #ffae
 /* === 各階層對應效果 === */
 
 /* 固定光澤 (位階 1~5) */
+.effect-0 { color:#ff4d4d; border-color:#ff4d4d; box-shadow:0 0 8px #ff4d4d; }
 .effect-1 { color:#a0c4ff; border-color:#a0c4ff; box-shadow:0 0 8px #a0c4ff; }
 .effect-2 { color:#00ffff; border-color:#00ffff; box-shadow:0 0 8px #00ffff; }
 .effect-3 { color:#ffb6c1; border-color:#ffb6c1; box-shadow:0 0 10px #ffb6c1; }
@@ -189,6 +190,7 @@ h1 { font-size: 2.5em; color: gold; text-shadow: 0 0 10px #ffd700,0 0 20px #ffae
         <tr><th>位階</th><th>名稱</th><th>魔法指數範圍</th><th>特效說明</th></tr>
       </thead>
       <tbody>
+        <tr><td>0</td><td>麻瓜</td><td>-1以下</td><td>紅色光暈，固定光澤</td></tr>
         <tr><td>1</td><td>新手魔法師</td><td>0~49</td><td>淡藍光暈，固定光澤</td></tr>
         <tr><td>2</td><td>初階魔法師</td><td>50~99</td><td>青色光暈，固定光澤</td></tr>
         <tr><td>3</td><td>見習魔法師</td><td>100~149</td><td>粉紅光暈，微閃</td></tr>
@@ -237,6 +239,7 @@ btnBadgeManual.addEventListener("click",()=>{ pageBadgeManual.classList.add("act
 
 // 魔法位階表
 const ranks=[
+  {name:"麻瓜", min:-99999, max:-1, effect:0},
   {name:"新手魔法師", min:0, max:49, effect:1},
   {name:"初階魔法師", min:50, max:99, effect:2},
   {name:"見習魔法師", min:100, max:149, effect:3},
@@ -326,7 +329,7 @@ const badges = {
 const wizards=[
   {seat:1,name:"生命守衛師",role:"保健長",power:54,badges:["(114-1) 守護徽章","(114-1) 新任魔法師徽章","(第1屆) 午休睡飽飽徽章","(第1屆) 崛起挑戰金獎章","(第1屆) Kahoot金獎章","(114-1) 萬聖南瓜徽章","(114-1) 萬聖殭屍徽章","(第2屆) Kahoot紀念章"]},
   {seat:2,name:"魔能工匠",role:"物資長",power:14,badges:["(114-1) 工匠徽章","(114-1) 新任魔法師徽章","(第1屆) 午休睡飽飽徽章","(第1屆) 崛起挑戰紀念章","(第1屆) Kahoot紀念章","(114-1) 萬聖殭屍徽章","(第3屆) Kahoot紀念章"]},
-  {seat:3,name:"火焰廚徒",role:"廚師",power:0,badges:["(114-1) 火焰徽章","(114-1) 新任魔法師徽章","(第1屆) 午休沒睡飽徽章","(第1屆) 崛起挑戰金獎章","(第1屆) Kahoot紀念章","(第2屆) Kahoot鼠獎章","魔力過載","魔力過載-2"]},
+  {seat:3,name:"火焰廚徒",role:"廚師",power:-2,badges:["(114-1) 火焰徽章","(114-1) 新任魔法師徽章","(第1屆) 午休沒睡飽徽章","(第1屆) 崛起挑戰金獎章","(第1屆) Kahoot紀念章","(第2屆) Kahoot鼠獎章","魔力過載"]},
   {seat:4,name:"時序守望者",role:"點名長",power:5,badges:["(114-1) 時光徽章","(114-1) 新任魔法師徽章","(第1屆) 午休睡飽飽徽章","(第1屆) Kahoot紀念章","(114-1) 萬聖殭屍徽章"]},
   {seat:5,name:"烈焰鬥士",role:"副體育長",power:0,badges:["(114-1) 烈焰徽章","(114-1) 新任魔法師徽章","(第1屆) 午休睡飽飽徽章","(第1屆) 崛起挑戰紀念章","(第1屆) Kahoot紀念章"]},
   {seat:6,name:"魔法議會議長",role:"班長",power:47,badges:["(114-1) 黃金議長徽章","(114-1) 新任魔法師徽章","(第1屆) 午休睡飽飽徽章","(第1屆) 崛起挑戰金獎章","(第1屆) Kahoot紀念章","(114-1) 小老師金質徽章","(114-1) 萬聖南瓜徽章","(第3屆) Kahoot紀念章"]},
@@ -386,6 +389,7 @@ for(const [name,emoji] of Object.entries(badges)){
 </script>
 </body>
 </html>
+
 
 
 
