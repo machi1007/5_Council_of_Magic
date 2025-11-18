@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>魔法師戰鬥系統</title>
+<title>魔法師對決系統</title>
 
 <!-- Part 1: 基本 CSS（UI 框架與排版） -->
 <style>
@@ -355,11 +355,11 @@ select option {
     魔法議會
   </button>
 </div>
-        <h2>【魔法師戰鬥系統】</h2>
-        <div class="meta">戰鬥系統設置</div>
+        <h2>【魔法師對決系統】</h2>
+        <div class="meta">對決系統設置</div>
       </div>
 
-      <div class="meta">提示：先按「新增玩家」建立玩家，再按「開始戰鬥」</div>
+      <div class="meta">1.「選隊伍數」 2.「新增玩家」 3.「開始決鬥」</div>
     </header>
 
     <div class="controls">
@@ -383,7 +383,7 @@ select option {
       </div>
 
       <div class="group">
-        <label>隊伍數(調整需要重新刪除與新增玩家)</label>
+        <label>隊伍數(調整後重新新增玩家)</label>
         <select id="teamCount">
           <option value="2">2</option>
           <option value="3">3</option>
@@ -397,7 +397,7 @@ select option {
       </div>
 
       <div class="group">
-        <button id="btnStart" onclick="startBattle()">開始戰鬥</button>
+        <button id="btnStart" onclick="startBattle()">開始對決</button>
         <button onclick="stopBattle()">停止</button>
       </div>
     </div>
@@ -961,4 +961,5 @@ const actor = living[Math.floor(Math.random()*living.length)];
 </script>
 </body>
 </html>
+
 
