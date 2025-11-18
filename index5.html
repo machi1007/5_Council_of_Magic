@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>魔法師戰鬥系統</title>
+
+<!-- Part 1: 基本 CSS（UI 框架與排版） -->
+<style>
+  :root{
+    --bg-1: #071025;
+    --bg-2: #000;
+    --panel: rgba(255,255,255,0.04);
+    --muted: #bdbdbd;
+    --accent: #7dd3fc;
+    --success: #4caf50;
+    --danger: #ff7043;
+    --card-radius: 12px;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(circle at 20% 10%, var(--bg-1) 0%, var(--bg-2) 60%);
+    color: #eef2ff;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  .container{
+    max-width:1200px;
+    margin:20px auto;
+    padding:18px;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
+
+  header h1{
+    margin:0;
+    font-size:20px;
+    letter-spacing:0.4px;
+  }
+  header .meta { color:var(--muted); font-size:13px; }
+
+  /* 控制列 */
+  .controls{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+
+
+select {
+  background: #111;         /* 深色背景，不用透明 */
+  border:1px solid #444;
+  color: #fff;
+  padding:6px 8px;
+  border-radius:8px;
+  width:90px;
+}
+
+select option {
+  background-color: #111;
+  color: #fff;
+}
+
+
+  .controls .group{
+    background:var(--panel);
+    padding:10px;
+    border-radius:10px;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+
+  button {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    color: #fff;
+    border:1px solid rgba(255,255,255,0.06);
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    transition: transform .08s ease, box-shadow .08s;
+  }
+  button:active { transform: translateY(1px); }
+
+  input[type="number"], input[type="text"], select {
+    background: rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.04);
+    color: #fff;
+    padding:6px 8px;
+    border-radius:8px;
+    width:90px;
+  }
+  label { font-size:13px; color:var(--muted); }
+
+  /* 主視覺區域 */
+  .layout {
+    display:grid;
+    grid-template-columns: 360px 1fr 320px;
+    gap:14px;
+  }
+
+  /* 左側：設定面板 */
+  .panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: var(--card-radius);
+    padding:12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  }
+
+  .panel h3 { margin:0 0 8px 0; font-size:14px; }
+  .player-row {
+    display:flex;
+    gap:6px;
+    align-items:center;
+    margin-bottom:8px;
+    padding:6px;
+    background: rgba(255,255,255,0.01);
+    border-radius:8px;
+  }
+  .player-row small { color:var(--muted); }
+
+  .players-list {
+    max-height:360px;
+    overflow:auto;
+    margin-top:8px;
+    padding-right:6px;
+  }
+
+  /* 中間：戰場 */
+  .battlefield-wrap {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .battle-area {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    height:520px;
+    border-radius:12px;
+    position:relative;
+    overflow:hidden;
+    padding:12px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  /* 單位卡片 */
+  .unit {
+    width:110px;
+    height:130px;
+    border-radius:10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.04);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:8px;
+    box-sizing:border-box;
+    position:relative;
+    transition: transform .12s ease;
+  }
+  .unit .avatar {
+    width:56px; height:56px; border-radius:50%;
+    background:linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    display:flex; align-items:center; justify-content:center; font-weight:700;
+    margin-bottom:6px;
+    border:2px solid rgba(255,255,255,0.03);
+  }
+  .unit .name { font-size:13px; margin:0; }
+  .unit .meta { font-size:11px; color:var(--muted); margin-top:4px; text-align:center; }
+
+  /* HP 條（inner 寬度會由 JS 動態控制） */
+  .hpbar { width:100%; height:8px; background:rgba(0,0,0,0.35); border-radius:8px; overflow:hidden; margin-top:6px; }
+  .hpbar > i { display:block; height:100%; width:100%; background:linear-gradient(90deg,var(--success), #8bc34a); transition:width .25s ease; }
+
+  /* 右側：Log / Stats */
+  .log {
+    height:260px;
+    overflow:auto;
+    padding:8px;
+    background: rgba(255,255,255,0.01);
+    border-radius:10px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .stats {
+    margin-top:10px;
+    padding:8px;
+    background: rgba(255,255,255,0.01);
+    border-radius:10px;
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  /* 小裝飾 */
+  .tag { font-size:12px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,0.03); color:var(--muted); }
+  .flex { display:flex; gap:8px; align-items:center; }
+  .space { height:10px; }
+  /* responsive */
+  @media (max-width: 980px){
+    .layout { grid-template-columns: 1fr; }
+    .battle-area { height:420px; }
+
+
+
+
+
+
+
+/* =========================================
+   PART 2：戰鬥動畫 CSS（飛行魔法、爆擊、命中特效）
+   ========================================= */
+
+/* 攻擊者揮動動作 */
+.unit.attack {
+  animation: atkShake 0.25s ease;
+}
+@keyframes atkShake {
+  0%   { transform:translateX(0); }
+  40%  { transform:translateX(8px) scale(1.04); }
+  100% { transform:translateX(0); }
+}
+
+/* 被攻擊者亮一下 */
+.unit.hit {
+  animation: hitFlash .28s ease;
+}
+@keyframes hitFlash {
+  0% { filter:brightness(1); transform:scale(1); }
+  40% { filter:brightness(2); transform:scale(1.06); }
+  100% { filter:brightness(1); transform:scale(1); }
+}
+
+/* =========================================
+   魔法飛彈（火球 / 冰箭 / 雷擊）
+   ========================================= */
+.magic-shot {
+  position:absolute;
+  width:14px; height:14px;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  transform:scale(0.5);
+}
+
+.magic-shot.fire    { background:#ff7043; box-shadow:0 0 12px #ff5722;   }
+.magic-shot.ice     { background:#80d8ff; box-shadow:0 0 12px #40c4ff;   }
+.magic-shot.thunder { background:#ffeb3b; box-shadow:0 0 16px #ffee58;   }
+
+/* 飛行軌跡動畫 (JS 設定起點與終點) */
+.magic-shot.fly {
+  animation: magicFly .28s linear forwards;
+}
+@keyframes magicFly {
+  0% { opacity:1; transform:scale(.7); }
+  100% { opacity:1; transform:scale(1.2); }
+}
+
+/* =========================================
+   特效：爆擊文字 / Miss 閃避
+   ========================================= */
+
+.float-text {
+  position:absolute;
+  font-size:14px;
+  font-weight:700;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(0) scale(1);
+  animation: floatUp 0.8s ease-out forwards;
+}
+
+.float-text.crit { color:#ffeb3b; text-shadow:0 0 8px #ffee58; }
+.float-text.miss { color:#90caf9; text-shadow:0 0 8px #42a5f5; }
+
+@keyframes floatUp {
+  0%   { opacity:0; transform:translateY(0) scale(0.4); }
+  20%  { opacity:1; transform:translateY(-6px) scale(1.1); }
+  100% { opacity:0; transform:translateY(-20px) scale(1); }
+}
+
+/* =========================================
+   範圍魔法：雷擊爆光
+   ========================================= */
+.aoe-flash {
+  position:absolute;
+  left:0; top:0;
+  width:100%; height:100%;
+  background: radial-gradient(circle, rgba(255,255,0,0.25), transparent 70%);
+  opacity:0;
+  pointer-events:none;
+  animation: aoeFlash .4s ease-out forwards;
+}
+
+@keyframes aoeFlash {
+  0%   { opacity:0; }
+  30%  { opacity:0.7; }
+  100% { opacity:0; }
+}
+
+/* =========================================
+   Buff / Debuff 光圈
+   ========================================= */
+.buff-circle {
+  position:absolute;
+  bottom:-6px; left:50%;
+  width:46px; height:8px;
+  border-radius:50%;
+  transform:translateX(-50%);
+  background: rgba(100,181,246,0.45);
+  box-shadow:0 0 10px #64b5f6;
+  pointer-events:none;
+  opacity:0;
+}
+
+.buff-circle.show {
+  opacity:1;
+  animation: buffPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes buffPulse {
+  0% { transform:translateX(-50%) scale(.8); opacity:.6; }
+  50% { transform:translateX(-50%) scale(1); opacity:1; }
+  100% { transform:translateX(-50%) scale(.8); opacity:.6; }
+}
+
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+<div>
+    <button onclick="window.location.href='index.html'" 
+          style="background:#222244; color:#ffd700; border:1px solid #ffd700; 
+                 padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">
+    魔法議會
+  </button>
+</div>
+        <h2>【魔法師戰鬥系統】</h2>
+        <div class="meta">戰鬥系統設置</div>
+      </div>
+
+      <div class="meta">提示：先按「新增玩家」建立玩家，再按「開始戰鬥」</div>
+    </header>
+
+    <div class="controls">
+      <div class="group">
+<button id="btnAdd">新增玩家</button>
+<button id="btnRemove">刪除玩家</button>
+      </div>
+
+      <div class="group">
+        <label for="strategy">攻擊策略</label>
+        <select id="strategy">
+          <option value="random">隨機攻擊</option>
+          <option value="lowestHP">攻擊血量最低</option>
+          <option value="highestThreat">攻擊威脅最高</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <label for="maxTurns">回合上限</label>
+        <input type="number" id="maxTurns" value="50" min="10" max="1000" />
+      </div>
+
+      <div class="group">
+        <label>隊伍數</label>
+        <select id="teamCount">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+        </select>
+      </div>
+
+      <div class="group">
+        <button id="btnStart" onclick="startBattle()">開始戰鬥</button>
+        <button onclick="stopBattle()">停止</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- 左側：玩家設定面板 -->
+      <section class="panel">
+        <h3>玩家設定</h3>
+        <div>
+          <small>每位玩家只需填寫：魔法指數（Magic Index）與 加權（Weight）</small>
+        </div>
+        <div class="players-list" id="playersInput">
+          <!-- JS 動態插入 player-row -->
+        </div>
+        <div class="space"></div>
+        <div class="flex">
+          <button onclick="autoFillDemo(6)">快速示範 (6 人)</button>
+          <button onclick="autoFillDemo(12)">快速示範 (12 人)</button>
+        </div>
+      </section>
+
+      <!-- 中間：戰場 -->
+      <main class="battlefield-wrap">
+        <h3 style="margin:0 0 6px 0">戰場</h3>
+        <div class="battle-area" id="battleArea">
+          <!-- JS 動態插入 unit 卡片 -->
+        </div>
+
+        <div style="display:flex; gap:8px; justify-content:space-between; align-items:center;">
+          <div class="tag">玩家數：<span id="lblCount">0</span></div>
+          <div class="tag">狀態：<span id="lblState">等待開始</span></div>
+          <div class="tag">回合：<span id="lblTurn">0</span></div>
+        </div>
+      </main>
+
+      <!-- 右側：戰鬥記錄與統計 -->
+      <aside>
+        <div class="panel log" id="logBox"></div>
+        <div class="stats" id="statBox">
+          <h4 style="margin-top:0">戰鬥統計</h4>
+          <div id="statContent">尚未開始</div>
+        </div>
+      </aside>
+    </div>
+
+    <footer style="margin-top:14px; color:var(--muted); font-size:13px;">
+      下一步：Part 2（動畫 CSS）與 Part 3/4（戰鬥核心與完整 JS）我會接著貼上 —— 若你想我可以直接把剩下的都合併成一個單一 HTML 檔案。
+    </footer>
+  </div>
+
+
+<script>
+
+/* ===========================
+   PART 3+4 完整 JS 整合版
+   包含：初始化屬性、技能系統、
+         戰鬥迴圈、動畫、統計
+   對應 DOM 元素：Part1 的 ID
+   =========================== */
+
+(() => {
+  // DOM hooks (依 Part1)
+  const playersInput = document.getElementById("playersInput");
+  const battleArea = document.getElementById("battleArea");
+  const lblCount = document.getElementById("lblCount");
+  const lblState = document.getElementById("lblState");
+  const lblTurn = document.getElementById("lblTurn");
+  const logBox = document.getElementById("logBox");
+  const statBox = document.getElementById("statBox");
+  const strategySelect = document.getElementById("strategy");
+  const maxTurnsInput = document.getElementById("maxTurns");
+  const teamCountSelect = document.getElementById("teamCount");
+  const btnAdd = document.getElementById("btnAdd");
+  const btnRemove = document.getElementById("btnRemove");
+  const btnStart = document.getElementById("btnStart");
+
+  // state
+  let playerCount = 0;
+  let players = [];
+  let simInterval = null;
+  let currentTurn = 0;
+  let running = false;
+
+  // utility
+  function $(id) { return document.getElementById(id); }
+  function rand(min, max){ return Math.random()*(max-min)+min; }
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+  function now() { return new Date().toLocaleTimeString(); }
+
+  // ----------------------------
+  // add / remove players in UI
+  // ----------------------------
+  window.addPlayer = addPlayer;
+  window.removePlayer = removePlayer;
+  window.autoFillDemo = autoFillDemo;
+
+  function addPlayer(defaultMagic = Math.floor(rand(80,160)), defaultWeight = (1+Math.random().toFixed(2))) {
+    const id = playerCount;
+    const row = document.createElement("div");
+    row.className = "player-row";
+    row.id = `playerRow${id}`;
+
+    // team options based on current teamCount
+    const teamOptions = (() => {
+      const teams = Number(teamCountSelect.value || 2);
+      let html = `<select id="team${id}">`;
+      for(let t=1;t<=teams;t++) html += `<option value="${t}">${t}</option>`;
+      html += `</select>`;
+      return html;
+    })();
+
+    row.innerHTML = `
+      <div style="width:34px;"><small>${id+1}</small></div>
+      <div style="flex:1">
+        隊伍: ${teamOptions}
+        魔法指數: <input id="magi${id}" type="number" value="${defaultMagic}" />
+        加權: <input id="wei${id}" type="number" step="0.01" value="${defaultWeight}" />
+      </div>
+    `;
+    playersInput.appendChild(row);
+    playerCount++;
+    updateCountLabel();
+    return id;
+  }
+
+  function removePlayer(){
+    if(playerCount<=0) return;
+    playerCount--;
+    const row = document.getElementById(`playerRow${playerCount}`);
+    if(row) row.remove();
+    updateCountLabel();
+  }
+
+  function autoFillDemo(n){
+    // clear current
+    while(playerCount>0) removePlayer();
+    // set team count to 2 by default if many players
+    if(n>12) teamCountSelect.value = "3";
+    for(let i=0;i<n;i++){
+      addPlayer(Math.floor(rand(80,160)), (1 + Math.random()).toFixed(2));
+    }
+  }
+
+  function updateCountLabel(){
+    lblCount.innerText = playerCount;
+  }
+
+  // ----------------------------
+  // Balance formulas & init
+  // ----------------------------
+  function initPlayersFromUI(){
+    players = [];
+    battleArea.innerHTML = "";
+    statBox.innerHTML = "<h4 style='margin-top:0'>戰鬥統計</h4><div id='statContent'>尚未開始</div>";
+    logBox.innerHTML = "";
+
+    const teamCount = Number(teamCountSelect.value || 2);
+
+    for(let i=0;i<playerCount;i++){
+      const magic = Number($(`magi${i}`).value) || 100;
+      const weight = Number($(`wei${i}`).value) || 1.0;
+      const team = Number($(`team${i}`) ? $(`team${i}`).value : ((i%teamCount)+1));
+      // base
+      const base = magic * weight;
+
+      // Balanced formulas (你要求的)
+      const maxHP = Math.max(30, Math.floor(magic * (20 + Math.random() * 10))); // HP = magic * 20~30
+      const ATK = base * (0.8 + Math.random()*0.4) * 1.5; // ATK = magic*weight*(0.8~1.2)*1.5
+      const DEF = base * (0.5 + Math.random()*0.4);     // DEF = magic*weight*(0.5~0.9)
+      const SPD = weight * (30 + Math.random()*30);     // SPD = weight * 30~60
+      const CRI = clamp(0.05 + Math.random()*0.10, 0.01, 0.35); // 5~15%
+      const EVA = clamp(0.03 + Math.random()*0.07, 0.0, 0.2);   // 3~10%
+
+      const p = {
+        id: i,
+        name: `P${i+1}`,
+        team,
+        magicIndex: magic,
+        weight,
+        maxHP,
+        hp: maxHP,
+        ATK,
+        DEF,
+        SPD,
+        CRI,
+        EVA,
+        alive: true,
+        // runtime stats
+        totalDamage: 0,
+        critCount: 0,
+        hitsReceived: 0,
+        actions: 0,
+        debuffs: { slowTurns:0 },
+        buffs: { shield:0 }, // shield value (damage reduction ratio for next hits)
+      };
+      players.push(p);
+      createUnitCard(p);
+    }
+
+    lblState.innerText = "已初始化";
+    lblTurn.innerText = "0";
+  }
+
+  // create unit card in battleArea
+  function createUnitCard(p){
+    const unit = document.createElement("div");
+    unit.className = "unit";
+    unit.id = `unit${p.id}`;
+    // team color outline
+    if (p.team === 1) unit.style.borderColor = "#4caf50";
+    else if (p.team === 2) unit.style.borderColor = "#ff5722";
+    else unit.style.borderColor = "#8e44ad";
+    unit.innerHTML = `
+      <div class="avatar">${p.name}</div>
+      <div class="name">${p.name}</div>
+      <div class="meta">T${p.team} | MAG:${p.magicIndex}</div>
+      <div class="hpbar"><i id="hpInner${p.id}" style="width:100%"></i></div>
+      <div class="buff-circle" id="buff${p.id}" style="display:none"></div>
+    `;
+    battleArea.appendChild(unit);
+  }
+
+  // ----------------------------
+  // Skills
+  // ----------------------------
+  const SKILLS = [
+    { key: "fire", name: "火球", multiplier: 1.2, color: "fire", desc: "穩定傷害" },
+    { key: "ice", name: "冰箭", multiplier: 1.0, color: "ice", desc: "傷害 + 有機率減速1回合" },
+    { key: "thunder", name: "雷擊", multiplier: 1.45, color: "thunder", desc: "高傷害，有機率連鎖小範圍" }
+  ];
+
+  function chooseSkillFor(attacker){
+    // 可改換為玩家選擇；目前簡單隨機偏好高魔力選雷擊
+    const roll = Math.random();
+    if(attacker.magicIndex > 140 && roll < 0.5) return SKILLS[2];
+    if(roll < 0.45) return SKILLS[0];
+    if(roll < 0.8) return SKILLS[1];
+    return SKILLS[0];
+  }
+
+  // ----------------------------
+  // target selection
+  // ----------------------------
+  function chooseTarget(attacker){
+    const aliveEnemies = players.filter(p => p.alive && p.team !== attacker.team);
+    if(aliveEnemies.length === 0) return null;
+    const strategy = strategySelect.value || "random";
+    if(strategy === "random"){
+      return aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+    } else if(strategy === "lowestHP"){
+      return aliveEnemies.sort((a,b)=> (a.hp/a.maxHP) - (b.hp/b.maxHP))[0];
+    } else if(strategy === "highestThreat"){
+      return aliveEnemies.sort((a,b)=> (b.ATK*(1+b.CRI)) - (a.ATK*(1+a.CRI)))[0];
+    }
+    return aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+  }
+
+  // ----------------------------
+  // damage calc (balanced)
+  // ----------------------------
+  function computeDamage(attacker, defender, skill){
+    // effective ATK with per-attack randomness
+    const atkRandomFactor = 0.8 + Math.random()*0.4; // 0.8~1.2
+    const defRandomFactor = 0.9 + Math.random()*0.3; // 0.9~1.2
+
+    // base damage source relates to attacker's ATK and skill multiplier
+    let raw = attacker.ATK * skill.multiplier * atkRandomFactor;
+
+    // defender effective defense
+    const effectiveDef = defender.DEF * defRandomFactor;
+
+    // underdog boost: if attacker weaker than defender, small boost to raw
+    const underdogBoost = 1 + clamp((defender.magicIndex - attacker.magicIndex)/400, -0.15, 0.35);
+
+    let damage = raw * underdogBoost - effectiveDef;
+
+    // minimum floor to avoid 0 damage
+    if(damage < Math.min(8, attacker.ATK*0.05)) damage = Math.min(8, attacker.ATK*0.05) + Math.random()*6;
+
+    // crit
+    let isCrit = false;
+    if(Math.random() < attacker.CRI){
+      damage *= 1.3; // moderate crit
+      isCrit = true;
+    }
+
+    // defender shield buff reduces damage (shield is ratio like 0.25)
+    if(defender.buffs && defender.buffs.shield && defender.buffs.shield > 0){
+      const shield = defender.buffs.shield;
+      damage = Math.floor(damage * (1 - shield));
+      // shield applies once per hit (optionally consume or keep for short duration)
+    }
+
+    damage = Math.max(1, Math.floor(damage));
+    return { damage, isCrit };
+  }
+
+  // ----------------------------
+  // Animations: magic shot, float text, aoe flash
+  // ----------------------------
+  function getUnitCenter(unitEl){
+    const r = unitEl.getBoundingClientRect();
+    const parentR = battleArea.getBoundingClientRect();
+    return { x: r.left + r.width/2 - parentR.left, y: r.top + r.height/2 - parentR.top };
+  }
+
+  function spawnMagicShot(fromEl, toEl, type = "fire"){
+    const start = getUnitCenter(fromEl);
+    const end = getUnitCenter(toEl);
+    const shot = document.createElement("div");
+    shot.className = `magic-shot ${type}`;
+    shot.style.left = `${start.x - 8}px`;
+    shot.style.top = `${start.y - 8}px`;
+    battleArea.appendChild(shot);
+
+    // animate using CSS transform (compute delta)
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    shot.style.transition = "transform 0.28s linear, opacity 0.28s linear";
+    shot.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
+    shot.classList.add("fly");
+
+    setTimeout(() => {
+      // impact effect
+      shot.style.opacity = "0";
+      setTimeout(()=> shot.remove(), 350);
+    }, 300);
+  }
+
+  function showFloatText(x, y, text, styleClass = "") {
+    const f = document.createElement("div");
+    f.className = `float-text ${styleClass}`;
+    f.style.left = `${x}px`;
+    f.style.top = `${y}px`;
+    f.innerText = text;
+    battleArea.appendChild(f);
+    setTimeout(()=> f.remove(), 900);
+  }
+
+  function aoeFlash(){
+    const el = document.createElement("div");
+    el.className = "aoe-flash";
+    battleArea.appendChild(el);
+    setTimeout(()=> el.remove(), 500);
+  }
+
+  // ----------------------------
+  // Battle turn and loop
+  // ----------------------------
+  function startBattle(){
+    if (running) return;
+    if (playerCount < 2) { alert("至少需要 2 名玩家"); return; }
+
+    initPlayersFromUI();
+    currentTurn = 0;
+    running = true;
+    lblState.innerText = "戰鬥中";
+    logBox.innerHTML = `<div>[${now()}] 戰鬥開始！</div>`;
+    // update maxTurns from input
+    const maxTurns = Number(maxTurnsInput.value) || 50;
+
+    simInterval = setInterval(() => {
+      if(!running) return;
+      currentTurn++;
+      lblTurn.innerText = String(currentTurn);
+      if(currentTurn > maxTurns){
+        logBox.innerHTML += `<div>[${now()}] 達回合上限，平手。</div>`;
+        stopBattle();
+        showStats();
+        return;
+      }
+
+      // get alive list
+      const living = players.filter(p => p.alive);
+      const aliveTeams = [...new Set(living.map(p=>p.team))];
+      if(aliveTeams.length <= 1){
+        if(aliveTeams.length === 1) logBox.innerHTML += `<div>[${now()}] 隊伍 ${aliveTeams[0]} 獲勝！</div>`;
+        else logBox.innerHTML += `<div>[${now()}] 無人生還，全滅！</div>`;
+        stopBattle();
+        showStats();
+        return;
+      }
+
+      // choose actor: highest effective SPD this tick (add small randomness to avoid same always)
+      living.sort((a,b) => {
+        const aEff = (a.SPD * (a.debuffs.slowTurns > 0 ? 0.6 : 1)) * rand(0.92,1.08);
+        const bEff = (b.SPD * (b.debuffs.slowTurns > 0 ? 0.6 : 1)) * rand(0.92,1.08);
+        return bEff - aEff;
+      });
+
+      // We'll process up to N actions per tick to keep pace: process 1 action per interval for clearer animation
+const actor = living[Math.floor(Math.random()*living.length)];
+      actor.actions++;
+      if(actor.debuffs.slowTurns > 0) actor.debuffs.slowTurns--;
+
+      // choose target and skill
+      const target = chooseTarget(actor);
+      if(!target){
+        // no enemies left - handled above but safe
+        return;
+      }
+      const skill = chooseSkillFor(actor);
+
+      // attack animation
+      const atkEl = document.getElementById(`unit${actor.id}`);
+      const defEl = document.getElementById(`unit${target.id}`);
+
+      // spawn shot
+      spawnMagicShot(atkEl, defEl, skill.color);
+
+      // compute damage (delayed to sync with shot)
+      setTimeout(()=> {
+        // check evasion
+        if(Math.random() < target.EVA){
+          // miss
+          const c = getUnitCenter(defEl);
+          showFloatText(c.x-10, c.y-10, "MISS", "miss");
+          logBox.innerHTML += `<div>[${now()}] ${actor.name} 的 ${skill.name} 未命中 ${target.name}（閃避）</div>`;
+          target.hitsReceived++;
+          updateUnitUI(target);
+          return;
+        }
+
+        const { damage, isCrit } = computeDamage(actor, target, skill);
+        // apply damage
+        target.hp -= damage;
+        actor.totalDamage += damage;
+        if(isCrit) actor.critCount++;
+
+        // skill side effects
+        if(skill.key === "ice"){
+          if(Math.random() < 0.32){
+            // slow target 1 turn
+            target.debuffs.slowTurns = Math.max(target.debuffs.slowTurns, 1);
+            document.getElementById(`buff${target.id}`).style.display = "block";
+            setTimeout(()=> { document.getElementById(`buff${target.id}`).style.display = "none"; }, 900);
+            logBox.innerHTML += `<div>[${now()}] ${actor.name} 的 冰箭 冰凍了 ${target.name}（下一回合速度降低）</div>`;
+          }
+        } else if(skill.key === "thunder"){
+          // chance to chain small AOE to another random enemy
+          if(Math.random() < 0.28){
+            const other = players.filter(p=>p.alive && p.team !== actor.team && p.id !== target.id);
+            if(other.length){
+              const extra = other[Math.floor(Math.random()*other.length)];
+              const chainDmg = Math.max(2, Math.floor(damage * 0.4));
+              extra.hp -= chainDmg;
+              extra.hitsReceived++;
+              // chain shot
+              const extraEl = document.getElementById(`unit${extra.id}`);
+              spawnMagicShot(defEl, extraEl, "thunder");
+              const c2 = getUnitCenter(extraEl);
+              showFloatText(c2.x-10, c2.y-10, `-${chainDmg}`, "");
+              logBox.innerHTML += `<div>[${now()}] 雷擊連鎖命中 ${extra.name} -${chainDmg}</div>`;
+              if(extra.hp <= 0 && extra.alive){
+                extra.alive = false;
+                logBox.innerHTML += `<div>[${now()}] 💀 ${extra.name} 被雷擊連鎖擊倒！</div>`;
+              }
+              updateUnitUI(extra);
+            }
+          }
+        }
+
+        // show damage float at target
+        const c = getUnitCenter(defEl);
+        showFloatText(c.x-10, c.y-10, `-${damage}${isCrit ? " CRIT!" : ""}`, isCrit ? "crit" : "");
+
+        // update stats & check death
+        target.hitsReceived++;
+        if(target.hp <= 0 && target.alive){
+          target.alive = false;
+          // death flash:
+          defEl.classList.add("hit");
+          setTimeout(()=> defEl.classList.remove("hit"), 400);
+          logBox.innerHTML += `<div>[${now()}] 💀 ${target.name} 被擊倒！</div>`;
+        } else {
+          // hit flash
+          defEl.classList.add("hit");
+          setTimeout(()=> defEl.classList.remove("hit"), 180);
+        }
+
+        // update UI
+        updateUnitUI(target);
+        updateUnitUI(actor);
+
+        // append action log
+        logBox.innerHTML += `<div>[${now()}] ${actor.name} 使用 ${skill.name} 攻擊 ${target.name} -${damage} ${isCrit ? "(爆擊)" : ""}</div>`;
+        // auto-scroll
+        logBox.scrollTop = logBox.scrollHeight;
+
+        // small AOE flash for thunder crits
+        if(skill.key === "thunder" && isCrit) aoeFlash();
+
+        // check overall victory
+        const aliveNow = players.filter(p=>p.alive);
+        const aliveTeams = [...new Set(aliveNow.map(p=>p.team))];
+        if(aliveTeams.length <= 1){
+          if(aliveTeams.length === 1) logBox.innerHTML += `<div>[${now()}] 隊伍 ${aliveTeams[0]} 獲勝！</div>`;
+          else logBox.innerHTML += `<div>[${now()}] 全滅！</div>`;
+          stopBattle();
+          showStats();
+          return;
+        }
+
+      }, 260); // damage applied after shot animation
+
+      // after actor performed, rotate order next tick
+    }, 650); // main loop tick (one action per tick for visual clarity)
+  }
+
+  function stopBattle(){
+    if(simInterval) clearInterval(simInterval);
+    simInterval = null;
+    running = false;
+    lblState.innerText = "已停止";
+  }
+
+  // ----------------------------
+  // UI updates
+  // ----------------------------
+  function updateUnitUI(p){
+    const hpInner = document.getElementById(`hpInner${p.id}`);
+    if(!hpInner) return;
+    const pct = Math.max(0, (p.hp / p.maxHP) * 100);
+    hpInner.style.width = `${pct}%`;
+    const unitEl = document.getElementById(`unit${p.id}`);
+    if(unitEl){
+      const meta = unitEl.querySelector(".meta");
+      if(meta) meta.innerText = `T${p.team} | HP:${Math.max(0,p.hp)}/${p.maxHP}`;
+    }
+  }
+
+  function showStats(){
+    let html = "<h4 style='margin-top:0'>戰鬥統計</h4>";
+    html += `<div>回合：${currentTurn}</div>`;
+    html += "<table border='0' style='margin:8px auto; color:#fff'><tr><th style='padding:6px'>玩家</th><th>隊伍</th><th>造成</th><th>爆擊</th><th>被擊</th><th>存活</th></tr>";
+    players.forEach(p=>{
+      html += `<tr><td style='padding:6px'>${p.name}</td><td>${p.team}</td><td>${p.totalDamage}</td><td>${p.critCount}</td><td>${p.hitsReceived}</td><td>${p.alive ? "存活":"死亡"}</td></tr>`;
+    });
+    html += "</table>";
+    statBox.innerHTML = html;
+  }
+
+  // ----------------------------
+  // wire buttons
+  // ----------------------------
+  if(btnAdd) btnAdd.addEventListener("click", ()=>{ addPlayer(); });
+  if(btnRemove) btnRemove.addEventListener("click", ()=>{ removePlayer(); });
+  if(btnStart) btnStart.addEventListener("click", ()=>{ startBattle(); });
+
+  // create initial demo players (keeps part1 behavior)
+  for(let i=0;i<4;i++) addPlayer();
+
+  // expose stopBattle to global if needed
+  window.stopBattle = stopBattle;
+
+  // expose startBattle for console
+  window.startBattle = startBattle;
+})();
+
+
+</script>
+</body>
+</html>
