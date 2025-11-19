@@ -53,7 +53,7 @@ h3 {
   color: #ccc;
   margin: 5px 0;
 }
-.store-card .cost, .store-card .quantity {
+.store-card .cost, .store-card .quantity, .store-card .weight {
   font-weight: bold;
   color: #ffd700;
   margin-top: 5px;
@@ -101,41 +101,51 @@ h3 {
 // ====== 可自行修改的倍率 ======
 const multiplier = 0.7; // ← 只改這裡即可
 
-// ====== 商品資料 ======
+// ====== 商品資料（已加入加權 weight） ======
 const storeItems = [
-  {emoji:"🧙‍♂️", name:"魔法帽", part:"【頭部】", cost:100, quantity:2},
-  {emoji:"👑", name:"王冠", part:"【頭部】", cost:150, quantity:1},
-  {emoji:"🎩", name:"高帽", part:"【頭部】", cost:70, quantity:3},
-  {emoji:"🛡️", name:"魔法護盾", part:"【盔甲】", cost:180, quantity:1},
-  {emoji:"🧥", name:"魔法外套", part:"【盔甲】", cost:75, quantity:3},
-  {emoji:"🧵", name:"魔法織布", part:"【盔甲】", cost:120, quantity:2},
-  {emoji:"🧤", name:"魔法手套", part:"【手部】", cost:55, quantity:3},
-  {emoji:"🗡️", name:"匕首手套", part:"【手部】", cost:200, quantity:1},
-  {emoji:"🔮", name:"水晶手套", part:"【手部】", cost:200, quantity:1},
-  {emoji:"🪄", name:"魔法杖", part:"【武器】", cost:250, quantity:1},
-  {emoji:"⚔️", name:"魔劍", part:"【武器】", cost:250, quantity:1},
-  {emoji:"🏹", name:"魔法弓", part:"【武器】", cost:250, quantity:1},
-  {emoji:"🏹", name:"【舊石器時代】狩獵竹弓", part:"【武器】", cost:999, quantity:1},
-  {emoji:"🔪", name:"【新石器時代】磨製石刀", part:"【武器】", cost:999, quantity:1},
-  {emoji:"🔨", name:"【金屬器時代】煉製鐵鎚", part:"【武器】", cost:999, quantity:1},
-  {emoji:"👖", name:"魔法護腿", part:"【腿部】", cost:150, quantity:1},
-  {emoji:"🩳", name:"魔法短褲", part:"【腿部】", cost:75, quantity:3},
-  {emoji:"🧙‍♂️", name:"長袍下襬", part:"【腿部】", cost:120, quantity:2},
-  {emoji:"🥾", name:"魔法靴", part:"【靴子】", cost:95, quantity:2},
-  {emoji:"👢", name:"長靴", part:"【靴子】", cost:130, quantity:3},
-  {emoji:"🥿", name:"輕靴", part:"【靴子】", cost:60, quantity:1},
-  {emoji:"🧣", name:"魔法披風", part:"【頸部】", cost:150, quantity:3},
-  {emoji:"📿", name:"魔法項鍊", part:"【頸部】", cost:180, quantity:2},
-  {emoji:"📿", name:"魔法護頸", part:"【頸部】", cost:200, quantity:1},
-  {emoji:"🔗", name:"魔法腰帶", part:"【腰部】", cost:160, quantity:3},
-  {emoji:"👑", name:"王者腰飾", part:"【腰部】", cost:250, quantity:1},
-  {emoji:"🔗", name:"魔法鏈帶", part:"【腰部】", cost:200, quantity:2},
-  {emoji:"💍", name:"魔法戒指", part:"【飾品】", cost:220, quantity:3},
-  {emoji:"📿", name:"魔法珠鏈", part:"【飾品】", cost:250, quantity:2},
-  {emoji:"🧿", name:"魔法護符", part:"【飾品】", cost:280, quantity:1},
-  {emoji:"🔮", name:"水晶球", part:"【其他】", cost:300, quantity:1},
-  {emoji:"🧪", name:"魔法藥水", part:"【其他】", cost:250, quantity:3},
-  {emoji:"📜", name:"魔法卷軸", part:"【其他】", cost:280, quantity:2}
+  {emoji:"🧙‍♂️", name:"魔法帽", part:"【頭部】", cost:100, quantity:2, weight:0.135},
+  {emoji:"👑", name:"王冠", part:"【頭部】", cost:150, quantity:1, weight:0.820},
+  {emoji:"🎩", name:"高帽", part:"【頭部】", cost:70, quantity:3, weight:0.240},
+
+  {emoji:"🛡️", name:"魔法護盾", part:"【盔甲】", cost:180, quantity:1, weight:0.675},
+  {emoji:"🧥", name:"魔法外套", part:"【盔甲】", cost:75, quantity:3, weight:0.230},
+  {emoji:"🧵", name:"魔法織布", part:"【盔甲】", cost:120, quantity:2, weight:0.410},
+
+  {emoji:"🧤", name:"魔法手套", part:"【手部】", cost:55, quantity:3, weight:0.315},
+  {emoji:"🗡️", name:"匕首手套", part:"【手部】", cost:200, quantity:1, weight:0.905},
+  {emoji:"🔮", name:"水晶手套", part:"【手部】", cost:200, quantity:1, weight:0.880},
+
+  {emoji:"🪄", name:"魔法杖", part:"【武器】", cost:250, quantity:1, weight:0.900},
+  {emoji:"⚔️", name:"魔劍", part:"【武器】", cost:250, quantity:1, weight:0.920},
+  {emoji:"🏹", name:"魔法弓", part:"【武器】", cost:250, quantity:1, weight:0.910},
+
+  {emoji:"🏹", name:"【舊石器時代】狩獵竹弓", part:"【武器】", cost:999, quantity:1, weight:0.999},
+  {emoji:"🔪", name:"【新石器時代】磨製石刀", part:"【武器】", cost:999, quantity:1, weight:0.999},
+  {emoji:"🔨", name:"【金屬器時代】煉製鐵鎚", part:"【武器】", cost:999, quantity:1, weight:0.999},
+
+  {emoji:"👖", name:"魔法護腿", part:"【腿部】", cost:150, quantity:1, weight:0.450},
+  {emoji:"🩳", name:"魔法短褲", part:"【腿部】", cost:75, quantity:3, weight:0.180},
+  {emoji:"🧙‍♂️", name:"長袍下襬", part:"【腿部】", cost:120, quantity:2, weight:0.410},
+
+  {emoji:"🥾", name:"魔法靴", part:"【靴子】", cost:95, quantity:2, weight:0.300},
+  {emoji:"👢", name:"長靴", part:"【靴子】", cost:130, quantity:3, weight:0.450},
+  {emoji:"🥿", name:"輕靴", part:"【靴子】", cost:60, quantity:1, weight:0.155},
+
+  {emoji:"🧣", name:"魔法披風", part:"【頸部】", cost:150, quantity:3, weight:0.510},
+  {emoji:"📿", name:"魔法項鍊", part:"【頸部】", cost:180, quantity:2, weight:0.620},
+  {emoji:"📿", name:"魔法護頸", part:"【頸部】", cost:200, quantity:1, weight:0.750},
+
+  {emoji:"🔗", name:"魔法腰帶", part:"【腰部】", cost:160, quantity:3, weight:0.420},
+  {emoji:"👑", name:"王者腰飾", part:"【腰部】", cost:250, quantity:1, weight:0.930},
+  {emoji:"🔗", name:"魔法鏈帶", part:"【腰部】", cost:200, quantity:2, weight:0.520},
+
+  {emoji:"💍", name:"魔法戒指", part:"【飾品】", cost:220, quantity:3, weight:0.680},
+  {emoji:"📿", name:"魔法珠鏈", part:"【飾品】", cost:250, quantity:2, weight:0.750},
+  {emoji:"🧿", name:"魔法護符", part:"【飾品】", cost:280, quantity:1, weight:0.880},
+
+  {emoji:"🔮", name:"水晶球", part:"【其他】", cost:300, quantity:1, weight:0.910},
+  {emoji:"🧪", name:"魔法藥水", part:"【其他】", cost:250, quantity:3, weight:0.330},
+  {emoji:"📜", name:"魔法卷軸", part:"【其他】", cost:280, quantity:2, weight:0.620}
 ];
 
 // ====== 顯示倍率 ======
@@ -152,6 +162,7 @@ storeItems.forEach(item => {
     <div class="part">部位: ${item.part}</div>
     <div class="cost">消耗魔法指數: ${(item.cost * multiplier).toFixed(0)}</div>
     <div class="quantity">數量: ${item.quantity}</div>
+    <div class="weight">加權：+${item.weight.toFixed(3)}</div>
   `;
   storeContainer.appendChild(card);
 });
@@ -159,4 +170,3 @@ storeItems.forEach(item => {
 
 </body>
 </html>
-
